@@ -13,6 +13,19 @@ let game = {
     },
     init() {
         this.ctx = document.getElementById('myCanvas').getContext('2d');
+        this.setEvents();
+    },
+    setEvents() {
+        window.addEventListener('keydown', (event) => {
+            if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
+                this.platform.dx = -this.platform.velocity;
+            } else if (event.code === 'ArrowRight' || event.code === 'KeyD') {
+                this.platform.dx = this.platform.velocity;
+            }
+        });
+        window.addEventListener('keyup', (event) => {
+            this.platform.dx = 0;
+        })
     },
     preload(callback) {
         let loaded = 0;
@@ -32,27 +45,35 @@ let game = {
     create() {
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
-               this.blocks.push({
-                   x:64 * col + 65,
-                   y:24 * row + 35,
-               })
+                this.blocks.push({
+                    x: 64 * col + 65,
+                    y: 24 * row + 35,
+                })
             }
+        }
+    },
+    update() {
+        if (this.platform.dx) {
+            this.platform.x += this.platform.dx;
         }
     },
     run() {
         window.requestAnimationFrame(() => {
+            this.update();
             this.render();
+            this.run();
         })
     },
     render() {
         this.ctx.drawImage(this.sprites.background, 0, 0);
         this.ctx.drawImage(this.sprites.ball, 0, 0, this.ball.width, this.ball.height, this.ball.x, this.ball.y, this.ball.width, this.ball.height);
         this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y);
-
+        this.renderBlocks();
+    },
+    renderBlocks() {
         for (let block of this.blocks) {
             this.ctx.drawImage(this.sprites.block, block.x, block.y);
         }
-
     },
     start() {
         this.init();
@@ -63,6 +84,8 @@ let game = {
     }
 };
 game.platform = {
+    velocity: 6,
+    dx: 0,
     x: 280,
     y: 300,
 }
