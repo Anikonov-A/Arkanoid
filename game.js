@@ -70,9 +70,10 @@ let game = {
     update() {
         this.collideBlocks();
         this.collidePlatform();
-        this.ball.collideWorldBounds()
+        this.ball.collideWorldBounds();
+        this.platform.collideWorldPlatform();
         this.platform.move();
-        this.ball.move()
+        this.ball.move();
 
     },
     collideBlocks() {
@@ -155,6 +156,9 @@ game.ball = {
         block.active = false;
     },
     bumpPlatform(platform) {
+        if (platform.dx){
+            this.x += platform.dx;
+        }
         if (this.dy > 0) {
             let touchX = this.x + this.width / 2;
             this.dy = -this.velocity;
@@ -182,10 +186,11 @@ game.ball = {
             this.x = worldRight - this.width;
             this.dx = -this.velocity;
         } else if (ballTop < worldTop) {
-            this.y =0;
+            this.y = 0;
             this.dy = this.velocity
         } else if (ballBottom > worldBottom) {
-            console.log('Game Over')
+            // alert("Game over")
+            // this.y = 0;
         }
     }
 }
@@ -226,6 +231,18 @@ game.platform = {
         return (2 * offset / this.width) - 1
 
     },
+    collideWorldPlatform() {
+        const platformLeft = this.x + this.dx;
+        const platformRight = platformLeft + this.width;
+
+        const worldLeft = 0;
+        const worldRight = game.width;
+
+        if (platformLeft < worldLeft || platformRight > worldRight) {
+            this.dx = 0;
+        }
+
+    }
 }
 
 
