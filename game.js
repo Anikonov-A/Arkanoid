@@ -53,9 +53,8 @@ let game = {
         }
     },
     update() {
-        if (this.platform.dx) {
-            this.platform.x += this.platform.dx;
-        }
+      this.platform.move()
+
     },
     run() {
         window.requestAnimationFrame(() => {
@@ -88,6 +87,11 @@ game.platform = {
     dx: 0,
     x: 280,
     y: 300,
+    move(){
+        if (this.dx) {
+            this.x += this.dx;
+        }
+    }
 }
 game.ball = {
     x: 320,
