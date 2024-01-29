@@ -1,3 +1,11 @@
+const KEYS = {
+    ARROW_LEFT: 'ArrowLeft',
+    ARROW_RIGHT: 'ArrowRight',
+    KEY_A: 'KeyA',
+    KEY_D: 'KeyD',
+    SPACE: 'Space',
+}
+
 let game = {
     ctx: null,
     platform: null,
@@ -17,14 +25,14 @@ let game = {
     },
     setEvents() {
         window.addEventListener('keydown', (event) => {
-            if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
-                this.platform.dx = -this.platform.velocity;
-            } else if (event.code === 'ArrowRight' || event.code === 'KeyD') {
-                this.platform.dx = this.platform.velocity;
+            if (event.code === KEYS.SPACE) {
+                this.platform.fire();
+            } else if (event.code === KEYS.ARROW_LEFT || event.code === KEYS.KEY_A || event.code === KEYS.ARROW_RIGHT || event.code === KEYS.KEY_D) {
+                this.platform.start(event.code)
             }
         });
-        window.addEventListener('keyup', (event) => {
-            this.platform.dx = 0;
+        window.addEventListener('keyup', () => {
+            this.platform.stop()
         })
     },
     preload(callback) {
@@ -53,7 +61,8 @@ let game = {
         }
     },
     update() {
-      this.platform.move()
+        this.platform.move();
+        this.ball.move()
 
     },
     run() {
@@ -82,22 +91,53 @@ let game = {
         });
     }
 };
+game.ball = {
+    x: 320,
+    y: 280,
+    width: 20,
+    height: 20,
+    velocity: 3,
+    dy: 0,
+    start() {
+        this.dy = -this.velocity
+    },
+    move() {
+        if (this.dy) {
+            this.y += this.dy
+        }
+    }
+}
+
 game.platform = {
     velocity: 6,
     dx: 0,
     x: 280,
     y: 300,
-    move(){
+    ball: game.ball,
+    fire() {
+        this.ball.start();
+        this.ball = null;
+    },
+    start(direction) {
+        if (direction === KEYS.ARROW_LEFT || direction === KEYS.KEY_A) {
+            this.dx = -this.velocity
+            console.log(this.dx)
+        } else if (direction === KEYS.ARROW_RIGHT || direction === KEYS.KEY_D) {
+            this.dx = this.velocity
+            console.log(this.dx)
+        }
+    },
+    stop() {
+        this.dx = 0;
+    },
+    move() {
         if (this.dx) {
             this.x += this.dx;
+            if (this.ball){
+                this.ball.x += this.dx;
+            }
         }
     }
-}
-game.ball = {
-    x: 320,
-    y: 280,
-    width: 20,
-    height: 20
 }
 
 
