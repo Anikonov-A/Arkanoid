@@ -58,6 +58,7 @@ let game = {
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 this.blocks.push({
+                    active: true,
                     width: 60,
                     height: 20,
                     x: 64 * col + 65,
@@ -67,14 +68,16 @@ let game = {
         }
     },
     update() {
+        this.collideBlocks();
+        this.collidePlatform();
+        this.ball.collideWorldBounds()
         this.platform.move();
         this.ball.move()
-        this.collideBlocks()
-        this.collidePlatform()
+
     },
     collideBlocks() {
         for (let block of this.blocks) {
-            if (this.ball.collide(block)) {
+            if (block.active && this.ball.collide(block)) {
                 this.ball.bumpBlock(block)
             }
         }
@@ -100,7 +103,9 @@ let game = {
     },
     renderBlocks() {
         for (let block of this.blocks) {
-            this.ctx.drawImage(this.sprites.block, block.x, block.y);
+            if (block.active) {
+                this.ctx.drawImage(this.sprites.block, block.x, block.y);
+            }
         }
     },
     start() {
@@ -147,11 +152,41 @@ game.ball = {
     },
     bumpBlock(block) {
         this.dy *= -1;
+        block.active = false;
     },
     bumpPlatform(platform) {
-        let touchX = this.x + this.width / 2;
-        this.dy *= -1;
-        this.dx = this.velocity * platform.getTouchOffset(touchX)
+        if (this.dy > 0) {
+            let touchX = this.x + this.width / 2;
+            this.dy = -this.velocity;
+            this.dx = this.velocity * platform.getTouchOffset(touchX)
+        }
+    },
+    collideWorldBounds() {
+        let x = this.x + this.dx;
+        let y = this.y + this.dy;
+
+        const ballLeft = x;
+        const ballRight = ballLeft + this.width;
+        const ballTop = y;
+        const ballBottom = ballTop + this.height
+
+        const worldLeft = 0;
+        const worldRight = game.width
+        const worldTop = 0;
+        const worldBottom = game.height;
+
+        if (ballLeft < worldLeft) {
+            this.x = 0;
+            this.dx = this.velocity
+        } else if (ballRight > worldRight) {
+            this.x = worldRight - this.width;
+            this.dx = -this.velocity;
+        } else if (ballTop < worldTop) {
+            this.y =0;
+            this.dy = this.velocity
+        } else if (ballBottom > worldBottom) {
+            console.log('Game Over')
+        }
     }
 }
 
